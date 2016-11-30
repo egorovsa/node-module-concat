@@ -240,13 +240,15 @@ module.exports = function concat(entryModule, outputFile, opts, cb) {
 				// Replace the `require` statement with `__require`
 				var parentIndex = files.indexOf(filePath);
 				return "__require(" + index + "," + parentIndex + ")";
-			})
-			// Replace `__dirname` with `__getDirname(...)`
-			.replace(dirnameRegex, "__getDirname(" +
-				JSON.stringify(getPathRelativeToOutput(filePath) ) + ")")
-			// Replace `__filename` with `__getFilename(...)`
-			.replace(filenameRegex, "__getFilename(" +
-				JSON.stringify(getPathRelativeToOutput(filePath) ) + ")");
+			});
+
+            if (!opts.includeNodeModules) {
+                // Replace `__dirname` with `__getDirname(...)`
+                code.replace(dirnameRegex, "__getDirname(" + JSON.stringify(getPathRelativeToOutput(filePath)) + ")")
+                // Replace `__filename` with `__getFilename(...)`
+                    .replace(filenameRegex, "__getFilename(" + JSON.stringify(getPathRelativeToOutput(filePath)) + ")");
+            }
+
 			// Write the modified code
 			fs.write(fd, code, null, "utf8", this);
 		}, function writeFooter() {
